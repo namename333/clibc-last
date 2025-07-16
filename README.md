@@ -59,6 +59,19 @@ chmod +x install.sh
 
 - 如果在使用过程中遇到 patchelf 命令执行失败的情况，请检查 patchelf 是否正确安装，以及目标程序是否为有效的 ELF 文件。
 
+## 具体使用
+```
+strings libc.so.6 | grep ubuntu
+```
+去找到具体的版本
+随后
+```
+clibc ./pwn 2.23
+# 如果有多个匹配版本，可以通过第三个参数指定更精确的后缀
+clibc ./pwn 2.23 0ubuntu11.3_amd64
+```
+<img width="743" height="319" alt="image" src="https://github.com/user-attachments/assets/a348af82-3c37-418f-9b24-e14c17d55299" />
+
 ## 贡献
 
 如果你对本项目感兴趣，欢迎提交问题报告或拉取请求。在贡献代码时，请确保遵循原项目的开源协议以及相关的代码风格和规范。
