@@ -1,4 +1,4 @@
-# clibc-last
+# clibc-name
 
 ## 项目背景
 
@@ -29,7 +29,7 @@ clibc 是几年前的项目，经过仔细审视，发现其中有许多地方�
 使用以下命令来执行安装脚本：
 
 ```
-git clone https://github.com/namename333/clibc-last
+git clone https://github.com/namename333/clibc-name
 cd clibc-last
 chmod +x install.sh
 ./install.sh
