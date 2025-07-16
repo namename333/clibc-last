@@ -30,7 +30,7 @@ clibc 是几年前的项目，经过仔细审视，发现其中有许多地方�
 
 ```
 git clone https://github.com/namename333/clibc-name
-cd clibc-last
+cd clibc-name
 chmod +x install.sh
 ./install.sh
 ```
