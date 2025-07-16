@@ -1,0 +1,81 @@
+#!/bin/bash
+
+# 检查参数数量
+if [ $# -lt 2 ]; then
+    echo "用法: $0 <目标程序> <libc版本> [可选:libc目录后缀]"
+    exit 1
+fi
+
+# 设置参数和环境变量
+TARGET_PROGRAM="$1"
+LIBC_VERSION="$2"
+SUFFIX="${3:-""}"  # 可选参数，用于指定libc目录的额外后缀
+
+# 确定系统架构
+echo "正在检测目标程序架构..."
+FILE_INFO=$(file "$TARGET_PROGRAM" 2>/dev/null)
+if [[ $? -ne 0 ]]; then
+    echo "错误: 无法获取目标程序信息"
+    exit 1
+fi
+
+if [[ "$FILE_INFO" == *"ELF 32-bit"* ]]; then
+    ARCH_BITS=32
+    ARCH_DIR="i386"
+    DEFAULT_LD="ld-linux.so.2"
+elif [[ "$FILE_INFO" == *"ELF 64-bit"* ]]; then
+    ARCH_BITS=64
+    ARCH_DIR="amd64"
+    DEFAULT_LD="ld-linux-x86-64.so.2"
+else
+    echo "错误: 无法确定目标程序的架构"
+    exit 1
+fi
+
+# 查找匹配的libc目录
+echo "正在查找匹配的libc目录..."
+LIBC_BASE="/usr/lib/freelibs/$ARCH_DIR"
+LIBC_DIR=$(ls -d "$LIBC_BASE/$LIBC_VERSION"*"$SUFFIX" 2>/dev/null | head -n 1)
+
+if [ -z "$LIBC_DIR" ]; then
+    echo "错误: 未找到匹配的libc目录: $LIBC_BASE/$LIBC_VERSION*$SUFFIX"
+    exit 1
+fi
+
+# 确定动态链接器
+echo "正在查找动态链接器..."
+if [ -f "$LIBC_DIR/$DEFAULT_LD" ]; then
+    LD_PATH="$LIBC_DIR/$DEFAULT_LD"
+else
+    # 尝试使用版本号命名的动态链接器
+    LD_PATH="$LIBC_DIR/ld-$LIBC_VERSION.so"
+    if [ ! -f "$LD_PATH" ]; then
+        echo "错误: 未找到动态链接器: $LD_PATH 或 $LIBC_DIR/$DEFAULT_LD"
+        exit 1
+    fi
+fi
+
+# 显示调试信息
+echo "========================================"
+echo "目标程序: $TARGET_PROGRAM"
+echo "LIBC版本: $LIBC_VERSION"
+echo "架构: $ARCH_BITS位 ($ARCH_DIR)"
+echo "libc目录: $LIBC_DIR"
+echo "动态链接器: $LD_PATH"
+echo "========================================"
+
+# 执行patchelf命令
+echo "正在修改ELF文件..."
+patchelf --set-interpreter "$LD_PATH" --set-rpath "$LIBC_DIR" "$TARGET_PROGRAM"
+
+# 检查命令执行结果
+if [ $? -eq 0 ]; then
+    echo "修改成功!!!"
+    # 显示修改后的信息
+    echo "验证修改结果:"
+    readelf -l "$TARGET_PROGRAM" | grep -A 1 "INTERP"
+    readelf -d "$TARGET_PROGRAM" | grep "RPATH"
+else
+    echo "错误: patchelf命令执行失败"
+    exit 1
+fi
