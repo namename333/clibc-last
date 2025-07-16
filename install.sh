@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+echo -e "start!"
 
 # 定义颜色代码，用于输出信息的美化
 RED='\033[0;31m'
@@ -20,6 +21,7 @@ FREELIBS_DIR="/usr/lib/freelibs"
 GLIBC_DIR="$HOME/glibc-all-in-one"
 GLIBC_LIBS_DIR="$GLIBC_DIR/libs"
 mkdir -p "./freelibs"
+
 # 移动 freelibs 目录
 if [ -d "freelibs" ]; then
     echo -e "${YELLOW}移动 freelibs 目录到 $FREELIBS_DIR...${NC}"
@@ -61,11 +63,11 @@ fi
 
 # 更新 glibc 列表
 echo -e "${YELLOW}更新 glibc 列表...${NC}"
-sudo python3 "$GLIBC_DIR/update_list"
+python3 "$GLIBC_DIR/update_list"
 
 # 下载所有 glibc 版本
 echo -e "${YELLOW}下载所有 glibc 版本...${NC}"
-cat "$GLIBC_DIR/list" | xargs -I {} sudo "$GLIBC_DIR/download" {}
+cat "$GLIBC_DIR/list" | xargs -I {} "$GLIBC_DIR/download" {}
 
 # 创建目标目录
 mkdir -p "$FREELIBS_DIR/amd64"
