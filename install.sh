@@ -19,7 +19,7 @@ echo -e "${GREEN}root用户！开始安装...${NC}"
 FREELIBS_DIR="/usr/lib/freelibs"
 GLIBC_DIR="$HOME/glibc-all-in-one"
 GLIBC_LIBS_DIR="$GLIBC_DIR/libs"
-
+mkdir -p "./freelibs"
 # 移动 freelibs 目录
 if [ -d "freelibs" ]; then
     echo -e "${YELLOW}移动 freelibs 目录到 $FREELIBS_DIR...${NC}"
